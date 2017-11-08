@@ -5,8 +5,9 @@ import random
 import matplotlib.pyplot as plt
 
 
-def show(vector):
+def show(vector, title=''):
     plt.imshow(np.array(vector).reshape(28, 28))
+    plt.title(title)
     plt.show()
 
 
@@ -16,15 +17,13 @@ def unpack(a):
 
 def test(index, data, network):
     v = network.activate(data[index])
-    show(data[index])
-    show(v)
+    show(data[index], "Input")
+    show(v, "Output")
 
 
 class HopfieldNetwork(object):
-    def __init__(self, train_dataset=[], test_dataset=[], threshold=60, theta=0.5, tolerance=.05):
-        self.tolerance = .335
-        self.threshold = threshold
-        self.theta = theta
+    def __init__(self, train_dataset=[], tolerance=.335):
+        self.tolerance = tolerance
         self.train_dataset = t = np.array(train_dataset)
         self.num_neurons = n = self.train_dataset[0].shape[0]
 
@@ -38,18 +37,18 @@ class HopfieldNetwork(object):
         changed = True
         while changed:
             changed = False
-            indeces = range(0, len(vector))
+            indices = range(0, len(vector))
+            random.shuffle(indices)
 
             # Vector to contain updated neuron activations on next iteration
             new_vector = [0] * len(vector)
 
             for i in range(0, len(vector)):
-                neuron_index = random.choice(indeces)
-                indeces.remove(neuron_index)
+                neuron_index = indices.pop()
 
                 s = self.compute_sum(vector, neuron_index)
                 new_vector[neuron_index] = 1 if s >= 0 else -1
-                changed = True if vector[neuron_index] != new_vector[neuron_index] else False
+                changed = vector[neuron_index] != new_vector[neuron_index]
 
             vector = new_vector
 
