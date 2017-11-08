@@ -4,21 +4,27 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
+def add_noise(vector, ratio=0.2):
+    indices = range(len(vector))
+    num = ratio * len(indices)
+    for i in range(int(num)):
+        c = random.choice(indices)
+        vector[c] = 1 if vector[c] == -1 else -1
 
-def show(vector, title=''):
+def show(vector, title='', suptitle=''):
     plt.imshow(np.array(vector).reshape(28, 28))
     plt.title(title)
+    plt.suptitle(suptitle)
     plt.show()
-
 
 def unpack(a):
     return zip(*a)
 
 
-def test(index, data, network):
+def test(index, data, network, suptitle=''):
     v = network.activate(data[index])
-    show(data[index], "Input")
-    show(v, "Output")
+    show(data[index], "Input", suptitle)
+    show(v, "Output", suptitle)
 
 
 class HopfieldNetwork(object):
@@ -66,13 +72,18 @@ class HopfieldNetwork(object):
 
 if __name__ == '__main__':
     mnist = fetch_mldata('MNIST original', data_home='.cache')
+    targets = mnist.target.tolist()
 
-    mnist_filtered = [[1 if pixel > 0 else -1 for pixel in vector] for vector in mnist.data[:10000]]
+    start, end = targets.index(1), targets.index(6)
+
+    dataset = [[1 if pixel > 0 else -1 for pixel in vector] for vector in mnist.data[start:end]]
 
     hf = HopfieldNetwork(
-        train_dataset=mnist_filtered[:2000]
+        train_dataset=dataset[:1000]
     )
 
-    test(11, mnist_filtered, hf)
-    test(12, mnist_filtered, hf)
-    test(13, mnist_filtered, hf)
+    test(11, dataset, hf, 'Without noise')
+    add_noise(dataset[11], ratio=0.4)
+    test(11, dataset, hf, 'With noise')
+    test(12, dataset, hf)
+    test(13, dataset, hf)
