@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import division
 from sklearn.datasets import fetch_mldata
 import numpy as np
 import random
@@ -28,16 +29,36 @@ def test(index, data, network, suptitle=''):
 
 
 class HopfieldNetwork(object):
-    def __init__(self, train_dataset=[], tolerance=.335):
-        self.tolerance = tolerance
-        self.train_dataset = t = np.array(train_dataset)
-        self.num_neurons = n = self.train_dataset[0].shape[0]
 
-        self.W = np.zeros((n, n))
-        for image_vector in t:
-            p = np.array([image_vector]).T
-            self.W += p * p.T
-        self.W -= len(t) * np.identity(len(t[0]))
+    def hebbian(self):
+        self.W = np.zeros([self.num_neurons, self.num_neurons])
+        for image_vector in self.train_dataset:
+            self.W += np.outer(image_vector, image_vector) / float(self.num_neurons)
+        np.fill_diagonal(self.W, 0)
+
+    def storkey(self):
+        self.W = np.zeros([self.num_neurons, self.num_neurons])
+
+        for image_vector in self.train_dataset:
+            self.W += np.outer(image_vector, image_vector) / float(self.num_neurons)
+            net = np.dot(self.W, image_vector)
+
+            pre = np.outer(image_vector, net)
+            post = np.outer(net, image_vector)
+
+            self.W -= np.add(pre, post) / float(self.num_neurons)
+
+    def __init__(self, train_dataset=[], mode='hebbian'):
+        self.train_dataset = np.array(train_dataset)
+        self.num_training = len(self.train_dataset)
+        self.num_neurons = self.train_dataset[0].shape[0]
+
+        self._modes = {
+            "hebbian": self.hebbian,
+            "storkey": self.storkey
+        }
+
+        self._modes[mode]()
 
     def activate(self, vector):
         changed = True
