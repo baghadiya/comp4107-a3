@@ -32,26 +32,28 @@ class HopfieldNetwork(object):
 
     def hebbian(self):
         self.W = np.zeros([self.num_neurons, self.num_neurons])
-        for image_vector in self.train_dataset:
-            self.W += np.outer(image_vector, image_vector) / float(self.num_neurons)
+        for image_vector, _ in self.train_dataset:
+            self.W += np.outer(image_vector, image_vector) / self.num_neurons
         np.fill_diagonal(self.W, 0)
 
     def storkey(self):
         self.W = np.zeros([self.num_neurons, self.num_neurons])
 
-        for image_vector in self.train_dataset:
-            self.W += np.outer(image_vector, image_vector) / float(self.num_neurons)
+        for image_vector, _ in self.train_dataset:
+            self.W += np.outer(image_vector, image_vector) / self.num_neurons
             net = np.dot(self.W, image_vector)
 
             pre = np.outer(image_vector, net)
             post = np.outer(net, image_vector)
 
-            self.W -= np.add(pre, post) / float(self.num_neurons)
+            self.W -= np.add(pre, post) / self.num_neurons
+        np.fill_diagonal(self.W, 0)
+
 
     def __init__(self, train_dataset=[], mode='hebbian'):
-        self.train_dataset = np.array(train_dataset)
+        self.train_dataset = train_dataset
         self.num_training = len(self.train_dataset)
-        self.num_neurons = self.train_dataset[0].shape[0]
+        self.num_neurons = len(self.train_dataset[0][0])
 
         self._modes = {
             "hebbian": self.hebbian,
