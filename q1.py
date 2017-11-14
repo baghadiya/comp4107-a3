@@ -77,7 +77,7 @@ class HopfieldNetwork(object):
 
                 s = self.compute_sum(vector, neuron_index)
                 new_vector[neuron_index] = 1 if s >= 0 else -1
-                changed = vector[neuron_index] != new_vector[neuron_index]
+                changed = not np.allclose(vector[neuron_index], new_vector[neuron_index], atol=1e-3)
 
             vector = new_vector
 
