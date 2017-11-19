@@ -147,6 +147,4 @@ plt.ylim(y_min, y_max)
 plt.show()
 
 
-# In the above visualization, the color of the small data points represents the cluster to which they have been assigned. The larger circles are the cluster centroids, with their color indicating the cluster that they represent. For illustrative purposes, I've also shaded subregions depending on which centroid they are closest to. This is called a Voronoi diagram.
-# 
 # The depiction above is known as a **Voronoi dagram**. The larger white points represent centroids, the colored points represent the data (orange=1, purple=5). Regions are partitioned based on distance to centroid. The green area represents datapoints labeled as 1's, and grey as datapoints with label as 5.
